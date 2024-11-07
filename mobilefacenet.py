@@ -8,14 +8,10 @@ import math
 import pdb
 
 
-##################################  Original Arcface Model #############################################################
-######## ccc#######################
 class Flatten(Module):
     def forward(self, input):
         return input.view(input.size(0), -1)
 
-
-##################################  MobileFaceNet #############################################################
 
 class Conv_block(Module):
     def __init__(self, in_c, out_c, kernel=(1, 1), stride=(1, 1), padding=(0, 0), groups=1):
