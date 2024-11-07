@@ -3,24 +3,20 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchsummary import summary
 
-
-# 定义DSC结构：DW+PW操作
 def BottleneckV1(in_channels, out_channels, stride):
-    # 深度可分卷积操作模块: DSC卷积 = DW卷积 + PW卷积
     return nn.Sequential(
-        # dw卷积,也是RexNeXt中的组卷积，当分组个数等于输入通道数时，输出矩阵的通道输也变成了输入通道数时，组卷积就是dw卷积
         nn.Conv2d(in_channels=in_channels, out_channels=in_channels, kernel_size=3, stride=stride, padding=1,
                   groups=in_channels),
         nn.BatchNorm2d(in_channels),
         nn.ReLU6(inplace=True),
-        # pw卷积，与普通的卷积一样，只是使用了1x1的卷积核
+      
         nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=1),
         nn.BatchNorm2d(out_channels),
         nn.ReLU6(inplace=True)
     )
 
 
-# 定义MobileNetV1结构
+
 class MobileNetV1(nn.Module):
     def __init__(self, num_classes=7):
         super(MobileNetV1, self).__init__()
@@ -33,7 +29,6 @@ class MobileNetV1(nn.Module):
         )
         # torch.Size([1, 32, 112, 112])
 
-        # 叠加的基本结构是： DW+PW(DW用来减小尺寸stride=2实现,PW用来增加通道out_channels增加实现)
         self.bottleneck = nn.Sequential(
             BottleneckV1(32, 64, stride=1),  # torch.Size([1, 64, 112, 112]), stride=1
 
@@ -64,7 +59,7 @@ class MobileNetV1(nn.Module):
         self.fc = nn.Linear(1024, 7)  # new fc layer 512x7
         self.alpha = nn.Sequential(nn.Linear(1024, 1), nn.Sigmoid())
 
-    # 初始化操作
+
     def init_params(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
